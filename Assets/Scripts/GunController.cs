@@ -6,20 +6,33 @@ using UnityEngine;
 public class GunController : MonoBehaviour {
 
     public BulletController bullet;
-    public RangedWeapon rangedWeapon;
-    public MeleeWeapon meleeWeapon;
+    public RangedWeapon equippedWeapon;
     public Transform firePoint;
+
+    public RangedWeapon primaryWeapon, secondaryWeapon;
 
     public bool isFiring;
     public bool secondaryFireMode;
-    public float bulletSpeed;
-    public float timeBetweenShots;
     
     private float shotCount; // countdown for timeBetweenShots
 
     void Start () {
-		
-	}
+        equippedWeapon = secondaryWeapon;
+        secondaryWeapon.gameObject.SetActive(true);
+        primaryWeapon.gameObject.SetActive(false);
+    }
+
+    public void switchWeapon() {
+        if (equippedWeapon == secondaryWeapon) {
+            equippedWeapon = primaryWeapon;
+            secondaryWeapon.gameObject.SetActive(false);
+            primaryWeapon.gameObject.SetActive(true);
+        } else {
+            equippedWeapon = secondaryWeapon;
+            secondaryWeapon.gameObject.SetActive(true);
+            primaryWeapon.gameObject.SetActive(false);
+        }
+    }
 
     void Update() {
         if (shotCount >= 0) {
@@ -29,11 +42,11 @@ public class GunController : MonoBehaviour {
             //Debug.Log("isn't firing");
             return;
         }
-        if (rangedWeapon == null) {
+        if (equippedWeapon == null) {
             //Debug.Log("no weapon equipped");
             return; 
         }
-        if(rangedWeapon.getLoadedAmmo() == 0 && rangedWeapon.getUnloadedAmmo() == 0) {
+        if(equippedWeapon.getLoadedAmmo() == 0 && equippedWeapon.getUnloadedAmmo() == 0) {
             //Debug.Log("no bullets left");
             return; 
         }
@@ -42,18 +55,26 @@ public class GunController : MonoBehaviour {
     }
 
     public int getDamage() {
-        return (int) rangedWeapon.damage;
+        return (int) equippedWeapon.damage;
+    }
+
+    public int getBulletSpeed() {
+        return (int) equippedWeapon.projectileSpeed;
+    }
+
+    public float timeBetweenShots() {
+        return equippedWeapon.attackCooldown;
     }
 
     private void decideReload() {
-        if (rangedWeapon.getLoadedAmmo() == 0) {
+        if (equippedWeapon.getLoadedAmmo() == 0) {
             //Debug.Log("Realoading");
-            int ammoLeft = rangedWeapon.capacity;
-            if(rangedWeapon.getUnloadedAmmo() < ammoLeft) {
-                ammoLeft = rangedWeapon.getUnloadedAmmo();
+            int ammoLeft = equippedWeapon.capacity;
+            if(equippedWeapon.getUnloadedAmmo() < ammoLeft) {
+                ammoLeft = equippedWeapon.getUnloadedAmmo();
             }
-            rangedWeapon.addLoadedAmmo(ammoLeft);
-            rangedWeapon.addUnloadedAmmo(- ammoLeft);
+            equippedWeapon.addLoadedAmmo(ammoLeft);
+            equippedWeapon.addUnloadedAmmo(- ammoLeft);
         }
     }
 
@@ -69,17 +90,17 @@ public class GunController : MonoBehaviour {
     }
 
     private void shootMain() {
-        rangedWeapon.addLoadedAmmo(-1);
-        shotCount = timeBetweenShots;
+        equippedWeapon.addLoadedAmmo(-1);
+        shotCount = timeBetweenShots();
         newBullet(firePoint.rotation);
     }
 
     private void shootSecondary() {
-        if(rangedWeapon.getLoadedAmmo() == 1) {
+        if(equippedWeapon.getLoadedAmmo() == 1) {
             shootMain();
-        } else if(rangedWeapon.getLoadedAmmo() == 2) {
-            rangedWeapon.addLoadedAmmo(-2);
-            shotCount = timeBetweenShots * 2;
+        } else if(equippedWeapon.getLoadedAmmo() == 2) {
+            equippedWeapon.addLoadedAmmo(-2);
+            shotCount = timeBetweenShots() * 2;
             float angle = 5f / 360f;
             Quaternion rotLeft = firePoint.rotation;
             rotLeft.y -= angle;
@@ -89,8 +110,8 @@ public class GunController : MonoBehaviour {
             newBullet(rotLeft);
             newBullet(rotRight);
         } else {
-            rangedWeapon.addLoadedAmmo(-3);
-            shotCount = timeBetweenShots * 2;
+            equippedWeapon.addLoadedAmmo(-3);
+            shotCount = timeBetweenShots() * 2;
             float angle = 10f / 360f;
             Quaternion rotLeft = firePoint.rotation;
             rotLeft.y -= angle;
@@ -105,7 +126,7 @@ public class GunController : MonoBehaviour {
 
     private void newBullet(Quaternion rotation) {
         BulletController b = Instantiate<BulletController>(bullet, firePoint.position, rotation);
-        b.speed = bulletSpeed;
+        b.speed = getBulletSpeed();
         b.damage = getDamage();
     }
 

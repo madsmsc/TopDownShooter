@@ -75,8 +75,8 @@ public class SkillController : MonoBehaviour {
         bool use = playerHealth.currentPower >= cost;
         if (use) {
             playerHealth.currentPower -= cost;
-            gun.rangedWeapon.maxUnloadedAmmo();
-            gun.rangedWeapon.maxLoadedAmmo();
+            gun.equippedWeapon.maxUnloadedAmmo();
+            gun.equippedWeapon.maxLoadedAmmo();
         }
         notify(MATERIALIZE_AMMO, use);
     }

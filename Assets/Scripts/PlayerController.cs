@@ -90,6 +90,9 @@ public class PlayerController : MonoBehaviour {
                 skillController.useSkill(i);
             }
         }
+        if (Input.GetButtonDown("Keyboard_q")) {
+            gun.switchWeapon();
+        }
     }
 
     private void shootGun() {

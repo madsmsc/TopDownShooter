@@ -16,7 +16,7 @@ public class MapGenerator : MonoBehaviour {
     public EnemyController enemy;
     public List<GameObject> greens;
 
-    private int failedPlaceAttempts = 0, maxFailedPlaceAttempts = 200;
+    private int failedPlaceAttempts = 0, maxFailedPlaceAttempts = 500;
     private int[,] map, placedGOs;
 
     void Start() {
