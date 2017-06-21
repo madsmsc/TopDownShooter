@@ -67,6 +67,7 @@
      <Compile Include="Assets\Scripts\LootController.cs" />
      <Compile Include="Assets\Scripts\Map\MapGenerator.cs" />
      <Compile Include="Assets\Scripts\Map\MeshGenerator.cs" />
+     <Compile Include="Assets\Scripts\Map\ObjectSpawner.cs" />
      <Compile Include="Assets\Scripts\MenuController.cs" />
      <Compile Include="Assets\Scripts\NotificationController.cs" />
      <Compile Include="Assets\Scripts\PlayerController.cs" />

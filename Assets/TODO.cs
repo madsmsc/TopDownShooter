@@ -4,6 +4,8 @@ public class TODO {
 /*
     TODO:
 
+    move stuff out of playerController and off the player GO
+
     fix q button for switching weapons
     fix character window showing stats
     fix inventory showing items 

@@ -7,19 +7,17 @@ public class MapGenerator : MonoBehaviour {
     [Range(0, 100)]
     public int randomFillPercent;
 
-    public int width, height;
+    public int width;
+    public int height;
     public bool useRandomSeed;
     public string seed;
 
-    public GameObject enemyNode, greenNode;
-    public int maxEnemies, maxGreens;
-    public EnemyController enemy;
-    public List<GameObject> greens;
-
-    private int failedPlaceAttempts = 0, maxFailedPlaceAttempts = 500;
-    private int[,] map, placedGOs;
+    private int[,] map;
+    private ObjectSpawner objectSpawner;
 
     void Start() {
+        // attach ObjectSpawner script to map GO in the editor
+        objectSpawner = GetComponent<ObjectSpawner>();
         generateMap();
     }
 
@@ -31,37 +29,43 @@ public class MapGenerator : MonoBehaviour {
         */
     }
 
+    private enum MapType { rockyForest, cave, floating };
+
     private void generateMap() {
+        generateMap(MapType.rockyForest);
+    }
+
+    private void generateMap(MapType mapType) {
         initMaps();
         randomFillMap();
-
         for (int i = 0; i < 5; i++) {
             smoothMap();
         }
-
         processMap();
-
         int[,] borderedMap = fillMap();
-
-        //debugMap(borderedMap);
-        spawnEnemies();
-        spawnGrass();
-
+        generateObjets(mapType);
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
         meshGen.generateMesh(borderedMap, 1);
     }
 
+    private void generateObjets(MapType mapType) {
+        //debugMap(borderedMap);
+        objectSpawner.init(map);
+        objectSpawner.spawnEnemies();
+        if (mapType == MapType.rockyForest)
+            objectSpawner.spawnGrass();
+        if (mapType == MapType.cave)
+            objectSpawner.spawnRocks();
+    }
+
     private void initMaps() {
-        // cap map dimensions so it doens't crash the game
-        // TODO: optimization so this isn't needed
-        int maxDimension = 100;
+        int maxDimension = 200;
         if (width > maxDimension)
             width = maxDimension;
         if (height > maxDimension)
             height = maxDimension;
 
         map = new int[width, height];
-        placedGOs = new int[width, height];
     }
 
     private int[,] fillMap() {
@@ -78,74 +82,6 @@ public class MapGenerator : MonoBehaviour {
             }
         }
         return borderedMap;
-    }
-
-
-    // TODO: take out all the object spawning.
-    // put the code into a new spawnStuffWhatever class in the map scripts
-    // and make a new generic method for it
-    private void spawnEnemies() {
-        System.Random random = new System.Random();
-        int noEnemies = 0;
-        while (noEnemies < maxEnemies) {
-            if (failedPlaceAttempts > maxFailedPlaceAttempts) {
-                Debug.Log("spawnGrass() failed attemps = " + failedPlaceAttempts);
-                return;
-            }
-            int randomX = random.Next(1, width-2);
-            int randomY = random.Next(1, height-2);
-            if (!freeSpace(randomX, randomY)) {
-                failedPlaceAttempts++;
-                continue;
-            }
-            Vector3 pos = new Vector3(gameObject.transform.position.x + randomX - width/2.0f, 0.1f,
-                                      gameObject.transform.position.z + randomY - height/2.0f);
-            EnemyController go = Instantiate<EnemyController>(enemy, pos, Quaternion.identity);
-            go.transform.parent = enemyNode.transform;
-            noEnemies++;
-            placedGOs[randomX, randomY] = 1;
-            //Debug.Log("creating enemy " + noEnemies + " @ " + pos);
-        }
-    }
-
-    private void spawnGrass() {
-        foreach (GameObject green in greens){
-            System.Random random = new System.Random();
-            int noGreens = 0;
-            while (noGreens < maxGreens) {
-                if (failedPlaceAttempts > maxFailedPlaceAttempts) {
-                    Debug.Log("spawnGrass() failed attemps = " + failedPlaceAttempts);
-                    return;
-                }
-                int randomX = random.Next(1, width - 2);
-                int randomY = random.Next(1, height - 2);
-                if (!freeSpace(randomX, randomY)) {
-                    failedPlaceAttempts++;
-                    continue;
-                }
-                Vector3 pos = new Vector3(gameObject.transform.position.x + randomX - width / 2.0f, -1,
-                                          gameObject.transform.position.z + randomY - height / 2.0f);
-                GameObject go = Instantiate<GameObject>(green, pos, Quaternion.identity);
-                go.transform.parent = greenNode.transform;
-                noGreens++;
-                placedGOs[randomX, randomY] = 1;
-                //Debug.Log("creating green " + noGreens + " @ " + pos);
-            }
-        }
-    }
-
-    private bool freeSpace(int x, int y) {
-        int off = 3;
-        if (x <= off || x > width - off || y <= off || y > height - off)
-            return false;
-        int sum = 0;
-        for (int i = x - off; i < x + off; i++) {
-            for (int j = y - off; j < y + off; j++) {
-                //Debug.Log("@ (" + i + ", " + j + ")");
-                sum += map[i, j] + placedGOs[i, j];
-            }
-        }
-        return sum == 0;
     }
 
     private void debugMap(int[,] borderedMap) {
@@ -449,7 +385,6 @@ public class MapGenerator : MonoBehaviour {
             tileY = y;
         }
     }
-
 
     private class Room : IComparable<Room> {
         public List<Coord> tiles;

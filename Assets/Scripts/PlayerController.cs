@@ -77,11 +77,12 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void menuButton() {
-        if (Input.GetButtonDown("Keyboard_esc")) {
-            menuController.escape();
-        } else if(Input.GetButtonDown("Keyboard_i")) {
-            menuController.inventory();
-        }
+        if (Input.GetButtonDown("Keyboard_esc"))
+            menuController.toggleMainMenu();
+        else if(Input.GetButtonDown("Keyboard_i"))
+            menuController.toggleInventory();
+        else if (Input.GetButtonDown("Keyboard_c"))
+            menuController.toggleCharacter();
     }
 
     private void skillButtons() {
@@ -145,7 +146,7 @@ public class PlayerController : MonoBehaviour {
 
         float maxPickupDist = 2;
         if (minDist < maxPickupDist) {
-            Debug.Log("[pickup] picking up item " + closest.type);
+            //Debug.Log("[pickup] picking up item " + closest.type);
             loot.Remove(closest);
             inv.add(closest);
             closest.gameObject.SetActive(false);
