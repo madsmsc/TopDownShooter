@@ -4,13 +4,16 @@ public class TODO {
 /*
     TODO:
 
-    move stuff out of playerController and off the player GO
+    factor out the movement stuff from playerController into moveController
 
-    fix q button for switching weapons
-    fix character window showing stats
-    fix inventory showing items 
-        (and mark the ones that are equipped - 
-         dont show this in character window)
+    factor out the camera stuff from playerController into cameraController
+
+    make the debug window have boolean in the editor that hides/shows
+       info and make the window scale accordingly.
+
+    why doesn't my fps counter match the editor stats fps counter?
+
+    move stuff out of playerController and off the player GO
 
     talents:
         salvage: get armor and power from dead enemies

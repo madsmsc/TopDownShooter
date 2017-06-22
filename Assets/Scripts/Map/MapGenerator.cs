@@ -59,7 +59,7 @@ public class MapGenerator : MonoBehaviour {
     }
 
     private void initMaps() {
-        int maxDimension = 200;
+        int maxDimension = 400;
         if (width > maxDimension)
             width = maxDimension;
         if (height > maxDimension)
@@ -96,7 +96,7 @@ public class MapGenerator : MonoBehaviour {
         Debug.Log(mapString);
     }
 
-    private void processMap() {
+    private void processWallRegions() {
         List<List<Coord>> wallRegions = getRegions(1);
         int wallThresholdSize = 50;
 
@@ -107,7 +107,9 @@ public class MapGenerator : MonoBehaviour {
                 }
             }
         }
+    }
 
+    private List<Room> processRoomRegions() {
         List<List<Coord>> roomRegions = getRegions(0);
         int roomThresholdSize = 50;
         List<Room> survivingRooms = new List<Room>();
@@ -121,10 +123,15 @@ public class MapGenerator : MonoBehaviour {
                 survivingRooms.Add(new Room(roomRegion, map));
             }
         }
+        return survivingRooms;
+    }
+
+    private void processMap() {
+        processWallRegions();
+        List<Room> survivingRooms = processRoomRegions();
         survivingRooms.Sort();
         survivingRooms[0].isMainRoom = true;
         survivingRooms[0].isAccessibleFromMainRoom = true;
-
         connectClosestRooms(survivingRooms);
     }
 

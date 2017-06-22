@@ -21,7 +21,7 @@ public class ObjectSpawner : MonoBehaviour{
     private List<Coord> freeTiles;
     private int width;
     private int height;
-    private int freeSpaceRadius = 2;
+    private int freeSpaceRadius = 3;
 
     public void init(int[,] mapToCopy) {
         if (useRandomSeed)
@@ -52,7 +52,7 @@ public class ObjectSpawner : MonoBehaviour{
         List<Coord> toRemove = new List<Coord>();
         System.Random random = new System.Random(seed.GetHashCode());
         foreach (Coord coord in freeTiles) {
-            if (coord.tileX < 0 || random.Next(0, 100) > amount)
+            if (coord.tileX < 0 || random.Next(0, 100) > amount / 10.0f)
                 continue;
             Vector3 pos = new Vector3(coord.tileX - width / 2.0f, 
                                       go.transform.position.y, 

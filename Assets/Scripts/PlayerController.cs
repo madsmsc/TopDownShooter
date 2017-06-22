@@ -3,27 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
-
-    public float camHeight, minCamHeight, maxCamHeight, zoomSpeed;
+    public float camHeight;
+    public float minCamHeight;
+    public float maxCamHeight;
+    public float zoomSpeed;
     public float moveSpeed;
+    public bool useController; // TODO couldn't this be private?
+    public GunController gun;
+    public MenuController menuController;
+    public List<Currency> loot; // TODO this shouldn't be here?
+
     private Vector3 moveInput;
     private Vector3 moveVelocity;
-    public bool useController;
-    public GunController gun;
     private SkillController skillController;
     private Rigidbody rigidBody;
     private Camera mainCam;
-    private MenuController menuController;
     private InventoryController inv;
-    public List<Currency> loot;
 
 	void Start () {
         rigidBody = GetComponent<Rigidbody>();
         mainCam = FindObjectOfType<Camera>();
-        menuController = GetComponent<MenuController>();
         skillController = GetComponent<SkillController>();
         inv = GetComponent<InventoryController>();
         loot = new List<Currency>();
+        // TODO what did this do again?
         //  Camera.main.GetComponent<Vignetting>().enabled = true/false;
     }
 
@@ -57,6 +60,7 @@ public class PlayerController : MonoBehaviour {
 
     private void setMoveFields() {
         // raw is 0/1, non-raw is interpolated between 0 and 1
+        // TODO should I be using raw or not? test both again...
         moveInput = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         // normalize so moving horizontally will not move faster than along the axes
         moveInput = moveInput.normalized;
@@ -83,6 +87,8 @@ public class PlayerController : MonoBehaviour {
             menuController.toggleInventory();
         else if (Input.GetButtonDown("Keyboard_c"))
             menuController.toggleCharacter();
+        else if (Input.GetButtonDown("Keyboard_t"))
+            menuController.toggleTalents();
     }
 
     private void skillButtons() {
