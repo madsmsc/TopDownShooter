@@ -5,10 +5,9 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour {
 
-    public BulletController bullet;
     public RangedWeapon equippedWeapon;
     public Transform firePoint;
-
+    public BulletPool bulletPool;
     public RangedWeapon primaryWeapon, secondaryWeapon;
 
     public bool isFiring;
@@ -23,6 +22,7 @@ public class GunController : MonoBehaviour {
     }
 
     public void switchWeapon() {
+        Debug.Log("Switch weapon!");
         if (equippedWeapon == secondaryWeapon) {
             equippedWeapon = primaryWeapon;
             secondaryWeapon.gameObject.SetActive(false);
@@ -125,9 +125,10 @@ public class GunController : MonoBehaviour {
     }
 
     private void newBullet(Quaternion rotation) {
-        BulletController b = Instantiate<BulletController>(bullet, firePoint.position, rotation);
+        BulletController b = bulletPool.newBullet(firePoint.position, rotation);
         b.speed = getBulletSpeed();
         b.damage = getDamage();
+        b.bulletPool = bulletPool;
     }
 
     public void mainAttackDown() {

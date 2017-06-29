@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DetectControlMethod : MonoBehaviour {
 
-    public PlayerController player;
+    public InputController player;
 
 	void Start () {
 		

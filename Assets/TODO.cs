@@ -4,16 +4,14 @@ public class TODO {
 /*
     TODO:
 
-    factor out the movement stuff from playerController into moveController
+    bulletPool doesn't work... check it out. just make it instantiate all objects to debug
 
-    factor out the camera stuff from playerController into cameraController
+    go through all scripts and make as much private as possible.
 
     make the debug window have boolean in the editor that hides/shows
        info and make the window scale accordingly.
 
     why doesn't my fps counter match the editor stats fps counter?
-
-    move stuff out of playerController and off the player GO
 
     talents:
         salvage: get armor and power from dead enemies

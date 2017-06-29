@@ -29,7 +29,11 @@ public class PlayerHealthManager : MonoBehaviour {
         color = render.material.GetColor("_Color");
     }
 
-    void Update () {
+    void Update() {
+        // it's all been moved to fixedUpdate
+    }
+
+    void FixedUpdate () {
         checkDead();
         checkFlash();
         regenStats();

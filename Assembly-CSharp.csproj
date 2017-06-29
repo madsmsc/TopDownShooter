@@ -48,12 +48,14 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\AmmoBar.cs" />
      <Compile Include="Assets\Scripts\BulletController.cs" />
+     <Compile Include="Assets\Scripts\BulletPool.cs" />
      <Compile Include="Assets\Scripts\DetectControlMethod.cs" />
      <Compile Include="Assets\Scripts\EnemyController.cs" />
      <Compile Include="Assets\Scripts\EnemySpawner.cs" />
      <Compile Include="Assets\Scripts\GunController.cs" />
      <Compile Include="Assets\Scripts\HealthBar.cs" />
      <Compile Include="Assets\Scripts\HurtPlayerManager.cs" />
+     <Compile Include="Assets\Scripts\InputController.cs" />
      <Compile Include="Assets\Scripts\InventoryController.cs" />
      <Compile Include="Assets\Scripts\Items\AttackMode.cs" />
      <Compile Include="Assets\Scripts\Items\Consumable.cs" />
@@ -70,7 +72,6 @@
      <Compile Include="Assets\Scripts\Map\ObjectSpawner.cs" />
      <Compile Include="Assets\Scripts\MenuController.cs" />
      <Compile Include="Assets\Scripts\NotificationController.cs" />
-     <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\Scripts\PlayerHealthManager.cs" />
      <Compile Include="Assets\Scripts\SkillBar.cs" />
      <Compile Include="Assets\Scripts\SkillController.cs" />

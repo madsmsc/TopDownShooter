@@ -6,7 +6,6 @@ using System;
 public class MapGenerator : MonoBehaviour {
     [Range(0, 100)]
     public int randomFillPercent;
-
     public int width;
     public int height;
     public bool useRandomSeed;
@@ -14,11 +13,11 @@ public class MapGenerator : MonoBehaviour {
 
     private int[,] map;
     private ObjectSpawner objectSpawner;
+    private enum MapType { rockyForest, cave, floating };
 
     void Start() {
-        // attach ObjectSpawner script to map GO in the editor
         objectSpawner = GetComponent<ObjectSpawner>();
-        generateMap();
+        generateMap(MapType.rockyForest);
     }
 
     void Update() {
@@ -27,12 +26,6 @@ public class MapGenerator : MonoBehaviour {
             GenerateMap();
         }
         */
-    }
-
-    private enum MapType { rockyForest, cave, floating };
-
-    private void generateMap() {
-        generateMap(MapType.rockyForest);
     }
 
     private void generateMap(MapType mapType) {
@@ -52,10 +45,14 @@ public class MapGenerator : MonoBehaviour {
         //debugMap(borderedMap);
         objectSpawner.init(map);
         objectSpawner.spawnEnemies();
-        if (mapType == MapType.rockyForest)
+        if (mapType == MapType.rockyForest) {
             objectSpawner.spawnGrass();
-        if (mapType == MapType.cave)
             objectSpawner.spawnRocks();
+        } if (mapType == MapType.cave) {
+            objectSpawner.spawnRocks();
+        } if (mapType == MapType.floating) {
+            // what to do here? hmmm...
+        }
     }
 
     private void initMaps() {

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class EnemyController : MonoBehaviour {
 
     private Rigidbody rigidBody;
-    private PlayerController player;
+    private InputController player;
     private LevelController playerLevel;
     private LootController lootController;
 
@@ -23,7 +23,7 @@ public class EnemyController : MonoBehaviour {
 
     void Start () {
         rigidBody = GetComponent<Rigidbody>();
-        player = FindObjectOfType<PlayerController>();
+        player = FindObjectOfType<InputController>();
         playerLevel = FindObjectOfType<LevelController>();
         lootController = FindObjectOfType<LootController>();
 
@@ -38,6 +38,10 @@ public class EnemyController : MonoBehaviour {
     }
 	
 	void Update () {
+        // moved to fixedUpdate
+    }
+
+    private void FixedUpdate() {
         // if the map will contain height differences, 
         // set the y-value to that of the enemy
         // will probably not work for controller (no intersection check)
@@ -48,6 +52,8 @@ public class EnemyController : MonoBehaviour {
         }
         // this billboard stuff doesn't work properly - fix sometime
         canvasTransform.LookAt(Camera.main.transform.position, -Vector3.up);
+
+        rigidBody.velocity = transform.forward * moveSpeed;
     }
 
     private void die() {
@@ -70,10 +76,6 @@ public class EnemyController : MonoBehaviour {
                 //Debug.Log("didn't drop loot :(");
             }
         }
-    }
-
-    private void FixedUpdate() {
-        rigidBody.velocity = transform.forward * moveSpeed;
     }
 
     public void hurtEnemy(int damage) {

@@ -7,6 +7,7 @@ public class BulletController : MonoBehaviour {
     public int damage;
     public float speed;
     public float lifetime;
+    public BulletPool bulletPool;
 
 	void Start () {
 	}
@@ -17,14 +18,14 @@ public class BulletController : MonoBehaviour {
         // fix pooling system as well as timer... 
         lifetime -= Time.deltaTime;
         if(lifetime <= 0) {
-            Destroy(gameObject);
+            bulletPool.destroy(this);
         }
 	}
 
     void OnCollisionEnter(Collision other) {
         if (other.gameObject.tag == "Enemy"){
             other.gameObject.GetComponent<EnemyController>().hurtEnemy(damage);
-            Destroy(gameObject);
+            bulletPool.destroy(this);
         }
     }
 }
