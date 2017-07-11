@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class LootController : MonoBehaviour{
-    public Currency currencyPrefab;
+    public LootPool lootPool;
 
     private Dictionary<CurrencyType, float> chances =
         new Dictionary<CurrencyType, float>() {
@@ -56,7 +56,8 @@ public class LootController : MonoBehaviour{
     private Currency newCurrency(CurrencyType currency) {
         // random location up to one unit away in x/z 
         Vector3 pos = new Vector3(Random.Range(-1, 1), 0, Random.Range(-1, 1));
-        return Instantiate<Currency>(currencyPrefab, pos, Quaternion.identity);
+        return lootPool.newObject(pos, Quaternion.identity);
+        //return Instantiate<Currency>(currencyPrefab, pos, Quaternion.identity);
     }
 }
 

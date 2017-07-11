@@ -24,7 +24,6 @@ public class NotificationController : MonoBehaviour {
             text.GetComponent<Text>().text = "";
             showing = false;
         }
-
 	}
 
     public void showNotification(string str, float time) {

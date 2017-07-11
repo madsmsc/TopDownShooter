@@ -48,10 +48,10 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\AmmoBar.cs" />
      <Compile Include="Assets\Scripts\BulletController.cs" />
-     <Compile Include="Assets\Scripts\BulletPool.cs" />
      <Compile Include="Assets\Scripts\DetectControlMethod.cs" />
      <Compile Include="Assets\Scripts\EnemyController.cs" />
      <Compile Include="Assets\Scripts\EnemySpawner.cs" />
+     <Compile Include="Assets\Scripts\GreenController.cs" />
      <Compile Include="Assets\Scripts\GunController.cs" />
      <Compile Include="Assets\Scripts\HealthBar.cs" />
      <Compile Include="Assets\Scripts\HurtPlayerManager.cs" />
@@ -73,6 +73,10 @@
      <Compile Include="Assets\Scripts\MenuController.cs" />
      <Compile Include="Assets\Scripts\NotificationController.cs" />
      <Compile Include="Assets\Scripts\PlayerHealthManager.cs" />
+     <Compile Include="Assets\Scripts\Pools\BulletPool.cs" />
+     <Compile Include="Assets\Scripts\Pools\EnemyPool.cs" />
+     <Compile Include="Assets\Scripts\Pools\GreenPool.cs" />
+     <Compile Include="Assets\Scripts\Pools\LootPool.cs" />
      <Compile Include="Assets\Scripts\SkillBar.cs" />
      <Compile Include="Assets\Scripts\SkillController.cs" />
      <Compile Include="Assets\Scripts\TalentController.cs" />

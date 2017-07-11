@@ -84,14 +84,24 @@ public class MeshGenerator : MonoBehaviour {
         walls.mesh = wallMesh;
         bounds.mesh = wallMesh;
 
-        walls.transform.Translate(new Vector3(0, 0, 0));
-        bounds.transform.Translate(new Vector3(0, wallHeight, 0));
+        walls.transform.position = new Vector3(0, 0, 0);
+        bounds.transform.position = new Vector3(0, wallHeight, 0);
     }
 
     void makeColliders() {
+        // remove colliders from bounds
+        foreach (MeshCollider collider in bounds.gameObject.GetComponents<MeshCollider>()) {
+            Destroy(collider);
+        }
+        // add colliders to bounds
         MeshCollider boundsCollider = bounds.gameObject.AddComponent<MeshCollider>();
         boundsCollider.sharedMesh = bounds.mesh;
 
+        // remove colliders from cave
+        foreach (MeshCollider collider in cave.gameObject.GetComponents<MeshCollider>()) {
+            Destroy(collider);
+        }
+        // add colliders to cave
         MeshCollider caveCollider = cave.gameObject.AddComponent<MeshCollider>();
         caveCollider.sharedMesh = cave.mesh;
     }

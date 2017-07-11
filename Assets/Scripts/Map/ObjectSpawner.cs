@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System;
 
 public class ObjectSpawner : MonoBehaviour{
-    public GameObject enemiesNode;
-    public GameObject worldObjectsNode;
+    public BulletPool bulletPool;
+    public EnemyPool enemyPool;
+    public GreenPool greenPool;
+    public LootPool lootPool;
+
     [Range(0, 100)]
     public int enemyAmount;
     [Range(0, 100)]
@@ -14,9 +17,9 @@ public class ObjectSpawner : MonoBehaviour{
     public int rockAmount;
     public string seed;
     public bool useRandomSeed;
-    public GameObject enemy;
-    public List<GameObject> greens;
-    public List<GameObject> rocks;
+    public EnemyController enemy;
+    public List<GreenController> greens;
+    public List<GreenController> rocks;
     private int[,] map;
     private List<Coord> freeTiles;
     private int width;
@@ -34,32 +37,45 @@ public class ObjectSpawner : MonoBehaviour{
         fillFreeTiles();
     }
 
+    private enum SpawnType { enemy, green };
+
+
     public void spawnEnemies() {
-        spawnObject(enemy, enemiesNode, enemyAmount);
+        spawnObject(enemy.gameObject, enemyAmount, SpawnType.enemy);
     }
 
     public void spawnGrass() {
-        foreach (GameObject green in greens)
-            spawnObject(green, worldObjectsNode, greenAmount);
+        foreach (GreenController green in greens) {
+            greenPool.prefab = green;
+            spawnObject(green.gameObject, greenAmount, SpawnType.green);
+        }
     }
 
     public void spawnRocks() {
-        foreach (GameObject rock in rocks)
-            spawnObject(rock, worldObjectsNode, rockAmount);
+        foreach (GreenController rock in rocks) {
+            greenPool.prefab = rock;
+            spawnObject(rock.gameObject, rockAmount, SpawnType.green);
+        }
     }
 
-    private void spawnObject(GameObject go, GameObject parent, int amount){
+    private void spawnObject(GameObject go, int amount, SpawnType spawnType) {
         List<Coord> toRemove = new List<Coord>();
         System.Random random = new System.Random(seed.GetHashCode());
         foreach (Coord coord in freeTiles) {
-            if (coord.tileX < 0 || random.Next(0, 100) > amount)
+            if (coord.tileX < 0 || random.Next(0, 100) > amount / 2.0f)
                 continue;
             Vector3 pos = new Vector3(coord.tileX - width / 2.0f, 
                                       go.transform.position.y, 
                                       coord.tileY - height / 2.0f);
-            GameObject newlyPlacedgameObject = Instantiate(go, pos, Quaternion.identity);
-            newlyPlacedgameObject.isStatic = true;
-            newlyPlacedgameObject.transform.parent = parent.transform;
+            GameObject newObject = null;
+            if(spawnType == SpawnType.green) {
+                newObject = greenPool.newObject(pos, Quaternion.identity).gameObject;
+                newObject.transform.parent = greenPool.transform;
+            } else if(spawnType == SpawnType.enemy) {
+                newObject = enemyPool.newObject(pos, Quaternion.identity).gameObject;
+                newObject.transform.parent = enemyPool.transform;
+            }
+            newObject.isStatic = true;
             toRemove.Add(coord);
             //Debug.Log("creating enemy " + noEnemies + " @ " + pos);
         }

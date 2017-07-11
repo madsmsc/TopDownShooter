@@ -12,6 +12,10 @@ public class Currency : Item {
     public CurrencyType type;
     public int amount;
 
+    public void init() {
+
+    }
+
     void OnGUI() {
         string text = type.ToString();
         if (amount > 1)

@@ -11,7 +11,8 @@ public class InputController : MonoBehaviour {
     public bool useController; // TODO couldn't this be private?
     public GunController gun;
     public MenuController menuController;
-    public List<Currency> loot; // TODO this shouldn't be here?
+    public MapGenerator map;
+    public LootPool lootPool;
 
     private Vector3 moveInput;
     private Vector3 moveVelocity;
@@ -28,7 +29,6 @@ public class InputController : MonoBehaviour {
         mainCam = FindObjectOfType<Camera>();
         skillController = GetComponent<SkillController>();
         inv = GetComponent<InventoryController>();
-        loot = new List<Currency>();
         // TODO what did this do again?
         //  Camera.main.GetComponent<Vignetting>().enabled = true/false;
     }
@@ -106,6 +106,9 @@ public class InputController : MonoBehaviour {
             if (Input.GetButtonUp("Keyboard_q")) {
                 gun.switchWeapon();
             }
+            if(Input.GetButtonUp("Space")) {
+                map.changeLevel();
+            }
         }
     }
 
@@ -151,7 +154,7 @@ public class InputController : MonoBehaviour {
     private void pickupItems() {
         Currency closest = null;
         float minDist = 999;
-        foreach (Currency c in loot) {
+        foreach (Currency c in lootPool.GetComponentsInChildren<Currency>()) {
             float dist = Vector3.Distance(c.transform.position, transform.position);
             if (dist < minDist) {
                 closest = c;
@@ -162,7 +165,7 @@ public class InputController : MonoBehaviour {
         float maxPickupDist = 2;
         if (minDist < maxPickupDist) {
             //Debug.Log("[pickup] picking up item " + closest.type);
-            loot.Remove(closest);
+            closest.transform.parent = null;
             inv.add(closest);
             closest.gameObject.SetActive(false);
         }

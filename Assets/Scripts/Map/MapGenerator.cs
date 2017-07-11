@@ -20,6 +20,7 @@ public class MapGenerator : MonoBehaviour {
     private int[,] map;
     private ObjectSpawner objectSpawner;
     private enum MapType { rockyForest, cave, floating };
+    public bool nextLevel, previousLevel;
 
     void Start() {
         objectSpawner = GetComponent<ObjectSpawner>();
@@ -27,17 +28,41 @@ public class MapGenerator : MonoBehaviour {
     }
 
     void Update() {
+        // TODO: this absolutely shouldn't be here
         float flashTime = 0.5f;
-        float dist = Vector3.Distance(player.position, startPortalGO.transform.position);
-        if (dist < 3) {
+        previousLevel = Vector3.Distance(player.position, startPortalGO.transform.position) < 3;
+        nextLevel = Vector3.Distance(player.position, endPortalGO.transform.position) < 3;
+        if (previousLevel) {
             notifications.showNotification("Press [SPACE] to go to previous level!", flashTime);
-        }
-        dist = Vector3.Distance(player.position, endPortalGO.transform.position);
-        if (dist < 3) {
+        } else if (nextLevel) {
             notifications.showNotification("Press [SPACE] to go to next level!", flashTime);
-        }
+        } 
 
         // updateMapOnMouse0();
+    }
+
+    public void changeLevel() {
+        if (!nextLevel && !previousLevel)
+            return;
+        Debug.Log("new map!");
+        //TODO  move this to objectSpawner
+        List<GreenController> greenToDelete = new List<GreenController>(objectSpawner.greenPool.active);
+        foreach (GreenController green in greenToDelete) {
+            objectSpawner.greenPool.destroyObject(green);
+        }
+        List<EnemyController> enemyToDelete = new List<EnemyController>(objectSpawner.enemyPool.active);
+        foreach (EnemyController enemy in enemyToDelete) {
+            objectSpawner.enemyPool.destroyObject(enemy);
+        }
+        List<BulletController> bulletToDelete = new List<BulletController>(objectSpawner.bulletPool.active);
+        foreach (BulletController bullet in bulletToDelete) {
+            objectSpawner.bulletPool.destroyObject(bullet);
+        }
+        List<Currency> currencyToDelete = new List<Currency>(objectSpawner.lootPool.active);
+        foreach (Currency currency in currencyToDelete) {
+            objectSpawner.lootPool.destroyObject(currency);
+        }
+        generateMap(MapType.rockyForest);
     }
 
     private void updateMapOnMouse0() {
@@ -124,48 +149,71 @@ public class MapGenerator : MonoBehaviour {
         }
     }
 
+    private Vector3 makeStartPortal(int offset) {
+        Vector3 startPortalPos = new Vector3(-width / 2.0f + offset, 1, -height / 2.0f + offset);
+        startPortalGO = Instantiate(portalPrefab, startPortalPos, Quaternion.identity);
+        startPortalGO.transform.parent = objectSpawner.greenPool.transform;
+        return startPortalPos;
+    }
+
+    private Vector3 makeEndPortal(int offset) {
+        Vector3 endPortalPos = new Vector3(width / 2.0f - offset, 1, height / 2.0f - offset);
+        endPortalGO = Instantiate(portalPrefab, endPortalPos, Quaternion.identity);
+        endPortalGO.transform.parent = objectSpawner.greenPool.transform;
+        return endPortalPos;
+    }
+
+    private void makePortalLights(Vector3 startPos, Vector3 endPos) {
+        // TODO: make portal GOs have position and cubes be at (0,0,0)
+        // that way, the lights will just inherit the position when their parents are the portals
+
+        Color lightColor = new Color(1, 1, 1, 1);
+        GameObject startLightGO = new GameObject("Start Portal Light");
+        Light startLightComp = startLightGO.AddComponent<Light>();
+        startLightComp.color = lightColor;
+        startLightGO.transform.parent = startPortalGO.transform;
+        startLightGO.transform.position = startPos;
+        GameObject endLightGO = new GameObject("End Portal Light");
+        Light endLightComp = endLightGO.AddComponent<Light>();
+        endLightComp.color = lightColor;
+        endLightGO.transform.parent = endPortalGO.transform;
+        endLightGO.transform.position = endPos;
+    }
+
+    private void makeNightDay(Vector3 startPos, Vector3 endPos) {
+        if (night) {
+            // reduce ambient light and disable sunlight
+            RenderSettings.ambientIntensity = 0.1f;
+            sunlight.SetActive(false);
+            makePortalLights(startPos, endPos);
+        } else {
+            RenderSettings.ambientIntensity = 0.66f;
+            sunlight.SetActive(true);
+        }
+    }
+
+    private void makeStartEndRooms(List<Room> survivingRooms) {
+        int offset = 2;
+        int width = map.GetLength(0);
+        int height = map.GetLength(1);
+        Vector3 startPos = makeStartPortal(offset);
+        Vector3 endPos = makeEndPortal(offset);
+        makeNightDay(startPos, endPos);
+        Room startRoom = new Room(new List<Coord>() {
+            new Coord(offset, offset), new Coord(offset+1, offset+1),
+            new Coord(offset+1, offset), new Coord(offset, offset+1)}, map);
+        Room endRoom = new Room(new List<Coord>() {
+            new Coord(width-offset, height-offset), new Coord(width-offset-1, height-offset-1),
+            new Coord(width-offset, height-offset-1), new Coord(width-offset-1, height-offset)}, map);
+        survivingRooms.Add(startRoom);
+        survivingRooms.Add(endRoom);
+    }
+
     private List<Room> processRoomRegions() {
         List<List<Coord>> roomRegions = getRegions(0);
         List<Room> survivingRooms = new List<Room>();
         int roomThresholdSize = 50;
-        // TODO: move this stuff somewhere else!
-        // offsets
-        int offset = 5;
-        int width = map.GetLength(0);
-        int height = map.GetLength(1);
-        // make portals
-        Vector3 startPortalPos = new Vector3(-width / 2.0f + offset, 1, -height / 2.0f + offset);
-        startPortalGO = Instantiate(portalPrefab, startPortalPos, Quaternion.identity);
-        startPortalGO.transform.parent = objectSpawner.worldObjectsNode.transform;
-        Vector3 endPortalPos = new Vector3(width / 2.0f - offset, 1, height / 2.0f - offset);
-        endPortalGO = Instantiate(portalPrefab, endPortalPos, Quaternion.identity);
-        endPortalGO.transform.parent = objectSpawner.worldObjectsNode.transform;
-        // make portal lights
-        if (night) {
-            // TODO: make portal GOs have position and cubes be at (0,0,0)
-            // that way, the lights will just inherit the position when their parents are the portals
-            RenderSettings.ambientIntensity = 0.1f;
-            sunlight.SetActive(false);
-            Color lightColor = new Color(1, 1, 1, 1);
-            GameObject startLightGO = new GameObject("Start Portal Light");
-            Light startLightComp = startLightGO.AddComponent<Light>();
-            startLightComp.color = lightColor;
-            startLightGO.transform.parent = startPortalGO.transform;
-            startLightGO.transform.position = startPortalPos;
-            GameObject endLightGO = new GameObject("End Portal Light");
-            Light endLightComp = endLightGO.AddComponent<Light>();
-            endLightComp.color = lightColor;
-            endLightGO.transform.parent = endPortalGO.transform;
-            endLightGO.transform.position = endPortalPos;
-        }
-        // start room
-        survivingRooms.Add(new Room(new List<Coord>() {
-            new Coord(offset, offset), new Coord(offset+1, offset+1),
-            new Coord(offset+1, offset), new Coord(offset, offset+1)}, map));
-        // end room
-        survivingRooms.Add(new Room(new List<Coord>() {
-            new Coord(width-offset, height-offset), new Coord(width-offset-1, height-offset-1),
-            new Coord(width-offset, height-offset-1), new Coord(width-offset-1, height-offset)}, map));
+        makeStartEndRooms(survivingRooms);
 
         foreach (List<Coord> roomRegion in roomRegions) {
             if (roomRegion.Count < roomThresholdSize) {

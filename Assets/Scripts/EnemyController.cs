@@ -4,12 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour {
-
-    private Rigidbody rigidBody;
-    private InputController player;
-    private LevelController playerLevel;
-    private LootController lootController;
-
+    
     public float moveSpeed;
     public int expWorth;
     public int maxHealth;
@@ -17,7 +12,12 @@ public class EnemyController : MonoBehaviour {
     public int damage, hitCooldown;
     public int level; // determines the mob level
     public int lootRolls; // determines the "difficulty/rarity" of the mob
+    public EnemyPool enemyPool;
 
+    private Rigidbody rigidBody;
+    private InputController player;
+    private LevelController playerLevel;
+    private LootController lootController;
     private Image healthBar;
     private Transform canvasTransform;
 
@@ -61,7 +61,7 @@ public class EnemyController : MonoBehaviour {
 
     private void die() {
         dropLoot();
-        Destroy(gameObject);
+        enemyPool.destroyObject(this);
     }
 
     private void dropLoot() {
@@ -73,7 +73,7 @@ public class EnemyController : MonoBehaviour {
                 float z = c.transform.position.z + transform.position.z;
                 c.transform.position = new Vector3(x, -0.9f, z);
                 c.itemName = c.type.ToString();
-                player.loot.Add(c);
+                c.transform.parent = lootController.lootPool.transform;
                 //Debug.Log("dropped loot! "+c.type);
             } else {
                 //Debug.Log("didn't drop loot :(");

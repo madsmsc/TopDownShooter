@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour {
 
-    public RangedWeapon equippedWeapon;
+    public RangedWeapon equippedWeapon; // primary/secondary which is currently equipped
     public Transform firePoint;
     public BulletPool bulletPool;
     public RangedWeapon primaryWeapon, secondaryWeapon;
@@ -125,10 +125,10 @@ public class GunController : MonoBehaviour {
     }
 
     private void newBullet(Quaternion rotation) {
-        BulletController b = bulletPool.newBullet(firePoint.position, rotation);
+        BulletController b = bulletPool.newObject(firePoint.position, rotation);
         b.speed = getBulletSpeed();
         b.damage = getDamage();
-        b.bulletPool = bulletPool;
+        b.pool = bulletPool;
     }
 
     public void mainAttackDown() {
