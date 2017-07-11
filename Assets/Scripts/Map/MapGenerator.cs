@@ -10,7 +10,13 @@ public class MapGenerator : MonoBehaviour {
     public int height;
     public bool useRandomSeed;
     public string seed;
+    public GameObject portalPrefab;
+    public Transform player;
+    public NotificationController notifications;
+    public GameObject sunlight;
+    public bool night;
 
+    private GameObject startPortalGO, endPortalGO;
     private int[,] map;
     private ObjectSpawner objectSpawner;
     private enum MapType { rockyForest, cave, floating };
@@ -21,11 +27,23 @@ public class MapGenerator : MonoBehaviour {
     }
 
     void Update() {
-        /* update the map on mouse 1 down
-        if (Input.GetMouseButtonDown(0)) {
-            GenerateMap();
+        float flashTime = 0.5f;
+        float dist = Vector3.Distance(player.position, startPortalGO.transform.position);
+        if (dist < 3) {
+            notifications.showNotification("Press [SPACE] to go to previous level!", flashTime);
         }
-        */
+        dist = Vector3.Distance(player.position, endPortalGO.transform.position);
+        if (dist < 3) {
+            notifications.showNotification("Press [SPACE] to go to next level!", flashTime);
+        }
+
+        // updateMapOnMouse0();
+    }
+
+    private void updateMapOnMouse0() {
+        if (Input.GetMouseButtonDown(0)) {
+            generateMap(MapType.rockyForest);
+        }
     }
 
     private void generateMap(MapType mapType) {
@@ -56,7 +74,7 @@ public class MapGenerator : MonoBehaviour {
     }
 
     private void initMaps() {
-        int maxDimension = 400;
+        int maxDimension = 200;
         if (width > maxDimension)
             width = maxDimension;
         if (height > maxDimension)
@@ -108,8 +126,46 @@ public class MapGenerator : MonoBehaviour {
 
     private List<Room> processRoomRegions() {
         List<List<Coord>> roomRegions = getRegions(0);
-        int roomThresholdSize = 50;
         List<Room> survivingRooms = new List<Room>();
+        int roomThresholdSize = 50;
+        // TODO: move this stuff somewhere else!
+        // offsets
+        int offset = 5;
+        int width = map.GetLength(0);
+        int height = map.GetLength(1);
+        // make portals
+        Vector3 startPortalPos = new Vector3(-width / 2.0f + offset, 1, -height / 2.0f + offset);
+        startPortalGO = Instantiate(portalPrefab, startPortalPos, Quaternion.identity);
+        startPortalGO.transform.parent = objectSpawner.worldObjectsNode.transform;
+        Vector3 endPortalPos = new Vector3(width / 2.0f - offset, 1, height / 2.0f - offset);
+        endPortalGO = Instantiate(portalPrefab, endPortalPos, Quaternion.identity);
+        endPortalGO.transform.parent = objectSpawner.worldObjectsNode.transform;
+        // make portal lights
+        if (night) {
+            // TODO: make portal GOs have position and cubes be at (0,0,0)
+            // that way, the lights will just inherit the position when their parents are the portals
+            RenderSettings.ambientIntensity = 0.1f;
+            sunlight.SetActive(false);
+            Color lightColor = new Color(1, 1, 1, 1);
+            GameObject startLightGO = new GameObject("Start Portal Light");
+            Light startLightComp = startLightGO.AddComponent<Light>();
+            startLightComp.color = lightColor;
+            startLightGO.transform.parent = startPortalGO.transform;
+            startLightGO.transform.position = startPortalPos;
+            GameObject endLightGO = new GameObject("End Portal Light");
+            Light endLightComp = endLightGO.AddComponent<Light>();
+            endLightComp.color = lightColor;
+            endLightGO.transform.parent = endPortalGO.transform;
+            endLightGO.transform.position = endPortalPos;
+        }
+        // start room
+        survivingRooms.Add(new Room(new List<Coord>() {
+            new Coord(offset, offset), new Coord(offset+1, offset+1),
+            new Coord(offset+1, offset), new Coord(offset, offset+1)}, map));
+        // end room
+        survivingRooms.Add(new Room(new List<Coord>() {
+            new Coord(width-offset, height-offset), new Coord(width-offset-1, height-offset-1),
+            new Coord(width-offset, height-offset-1), new Coord(width-offset-1, height-offset)}, map));
 
         foreach (List<Coord> roomRegion in roomRegions) {
             if (roomRegion.Count < roomThresholdSize) {

@@ -27,10 +27,14 @@ public class NotificationController : MonoBehaviour {
 
 	}
 
-    public void showNotification(string str) {
+    public void showNotification(string str, float time) {
         // Debug.Log("showing notification: " + str);
         text.GetComponent<Text>().text = str;
-        flashCount = flashTime;
+        flashCount = time;
         showing = true;
+    }
+
+    public void showNotification(string str) {
+        showNotification(str, flashTime);
     }
 }

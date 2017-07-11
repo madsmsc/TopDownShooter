@@ -5,46 +5,41 @@ using UnityEngine;
 public class BulletPool : MonoBehaviour {
     public BulletController bulletPrefab;
     public int maxBullets;
-
     public int createdBullets = 0;
-    public List<BulletController> inactiveBullets;
+    public int inactiveCount;
+    public BulletController[] inactiveBullets;
 
     void Start () {
-        inactiveBullets = new List<BulletController>(maxBullets);
+        inactiveBullets = new BulletController[maxBullets];
     }
-
-    // TODO the bullet pool isn't working. I'm just creating and killing bullets now.
-
+    
     public BulletController newBullet(Vector3 position, Quaternion rotation) {
-        BulletController bullet = Instantiate<BulletController>(bulletPrefab, position, rotation);
-        bullet.transform.parent = this.transform;
-        return bullet;
-        /*
-        BulletController bullet;
-        if (inactiveBullets.Count > 0) {
-            bullet = inactiveBullets[0];
-            inactiveBullets.RemoveAt(0);
+        BulletController bullet = null;
+        if (inactiveCount > 0) {
+            //Debug.Log("inactiveCount (" + inactiveCount + ") > 0");
+            bullet = inactiveBullets[inactiveCount - 1];
+            inactiveBullets[inactiveCount - 1] = null;
+            inactiveCount--;
         } else if (createdBullets < maxBullets) {
+            //Debug.Log("createdBullets (" + createdBullets + ") < maxBullets (" + maxBullets);
             bullet = Instantiate<BulletController>(bulletPrefab, position, rotation);
+            bullet.bulletPool = this;
+            bullet.transform.parent = this.transform;
             createdBullets++;
-        } else {
-            Debug.Log("Error! Spawned more than the max (" + maxBullets + ") number of bullets.");
-            return null;
         }
-        bullet.bulletPool = this;
+        if(bullet == null) {
+            throw new System.Exception("Error! Spawned more than the max (" + maxBullets + ") number of bullets.");
+        }
+        bullet.init();
         bullet.gameObject.SetActive(true);
-        bullet.transform.parent = this.transform;
+        bullet.transform.position = position;
+        bullet.transform.rotation = rotation;
         return bullet;
-        */
     }
 
     public void destroy(BulletController bullet) {
-        Destroy(bullet.gameObject);
-        Destroy(bullet);
-        /*
         bullet.gameObject.SetActive(false);
-        bullet.transform.parent = null;
-        inactiveBullets.Add(bullet);
-        */
+        inactiveBullets[inactiveCount] = bullet;
+        inactiveCount++;
     }
 }

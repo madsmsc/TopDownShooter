@@ -22,7 +22,7 @@ public class GunController : MonoBehaviour {
     }
 
     public void switchWeapon() {
-        Debug.Log("Switch weapon!");
+        //Debug.Log("Switch weapon!");
         if (equippedWeapon == secondaryWeapon) {
             equippedWeapon = primaryWeapon;
             secondaryWeapon.gameObject.SetActive(false);

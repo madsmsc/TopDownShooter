@@ -52,12 +52,13 @@ public class ObjectSpawner : MonoBehaviour{
         List<Coord> toRemove = new List<Coord>();
         System.Random random = new System.Random(seed.GetHashCode());
         foreach (Coord coord in freeTiles) {
-            if (coord.tileX < 0 || random.Next(0, 100) > amount / 5.0f)
+            if (coord.tileX < 0 || random.Next(0, 100) > amount)
                 continue;
             Vector3 pos = new Vector3(coord.tileX - width / 2.0f, 
                                       go.transform.position.y, 
                                       coord.tileY - height / 2.0f);
             GameObject newlyPlacedgameObject = Instantiate(go, pos, Quaternion.identity);
+            newlyPlacedgameObject.isStatic = true;
             newlyPlacedgameObject.transform.parent = parent.transform;
             toRemove.Add(coord);
             //Debug.Log("creating enemy " + noEnemies + " @ " + pos);

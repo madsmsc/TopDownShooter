@@ -29,8 +29,7 @@ public class EnemyController : MonoBehaviour {
 
         currentHealth = maxHealth;
         canvasTransform = transform.FindChild("EnemyCanvas");
-        healthBar = transform.FindChild("EnemyCanvas").FindChild("HealthBG").
-                        FindChild("Health").GetComponent<Image>();
+        healthBar = canvasTransform.FindChild("HealthBG").FindChild("Health").GetComponent<Image>();
 
         HurtPlayerManager hurtPlayer = transform.FindChild("Body").GetComponent<HurtPlayerManager>();
         hurtPlayer.setDamage(damage);
@@ -51,7 +50,11 @@ public class EnemyController : MonoBehaviour {
             die();
         }
         // this billboard stuff doesn't work properly - fix sometime
-        canvasTransform.LookAt(Camera.main.transform.position, -Vector3.up);
+        canvasTransform.rotation = Camera.main.transform.rotation;
+        //canvasTransform.LookAt(Camera.main.transform.position, -Vector3.up);
+        //canvasTransform.LookAt(Camera.main.WorldToScreenPoint(transform.position), -Vector3.up);
+        //canvasTransform.LookAt(Vector3.up, -Vector3.up);
+        //canvasTransform.Rotate(90, 90, 0);
 
         rigidBody.velocity = transform.forward * moveSpeed;
     }

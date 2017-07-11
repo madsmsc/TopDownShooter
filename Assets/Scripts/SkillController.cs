@@ -16,12 +16,13 @@ public class SkillController : MonoBehaviour {
     private string OVERDRIVE = "Overdrive";
     private string GRENADE = "Grenade";
 
-    private int NUMBER_OF_SKILLS = 9;
+    private int NUMBER_OF_SKILLS = 5;
 
     private string USING_SKILL = "Using ";
     private string NO_POWER = "Not enough power to use ";
 
     // TODO MPE: smid det ud i objekter og goer koden generel
+    // og strengene her skal populate knapperne i skillbar
 
     void Start () {
         playerHealth = FindObjectOfType<PlayerHealthManager>();
@@ -36,8 +37,8 @@ public class SkillController : MonoBehaviour {
         skills[2] = NANOBOTS;
         skills[3] = HACK;
         skills[4] = EMP;
-        skills[5] = OVERDRIVE;
-        skills[6] = GRENADE;
+        //skills[5] = OVERDRIVE;
+        //skills[6] = GRENADE;
     }
 	
 	void Update () {

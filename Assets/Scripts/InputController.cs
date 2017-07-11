@@ -21,6 +21,9 @@ public class InputController : MonoBehaviour {
     private InventoryController inv;
 
 	void Start () {
+        // move most of this outside this class... doesn't belong here.
+        //QualitySettings.vSyncCount = 0; // go above 60 fps
+
         rigidBody = GetComponent<Rigidbody>();
         mainCam = FindObjectOfType<Camera>();
         skillController = GetComponent<SkillController>();
@@ -37,9 +40,6 @@ public class InputController : MonoBehaviour {
             return;
         }
         skillButtons();
-    }
-
-    private void FixedUpdate() {
         setMoveFields();
         zoomCamera();
         rotateCamera();
@@ -49,6 +49,10 @@ public class InputController : MonoBehaviour {
         Vector3 camPos = new Vector3(rigidBody.position.x, camHeight, rigidBody.position.z - camHeight / 1.5f);
         mainCam.transform.position = camPos;
         pickupItems();
+    }
+
+    private void FixedUpdate() {
+
     }
 
     private void zoomCamera() {
@@ -81,7 +85,7 @@ public class InputController : MonoBehaviour {
 
     private void menuButton() {
         if (Input.GetButtonDown("Keyboard_esc"))
-            menuController.toggleMainMenu();
+            menuController.toggleHelp();
         else if(Input.GetButtonDown("Keyboard_i"))
             menuController.toggleInventory();
         else if (Input.GetButtonDown("Keyboard_c"))
