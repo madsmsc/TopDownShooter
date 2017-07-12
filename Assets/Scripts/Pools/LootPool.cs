@@ -28,7 +28,7 @@ public class LootPool : MonoBehaviour {
             //Debug.Log("createdObjects() " + createdObjects() + " < maxObjects " + maxObjects);
             t = Instantiate<Currency>(prefab, pos, rot);
             t.transform.parent = this.transform;
-            active.Remove(t);
+            active.Add(t);
         }
         // TODO the exceptions all mention bullets. make them specific to the pools
         if(t == null) {

@@ -11,8 +11,4 @@ public class GreenController : MonoBehaviour {
     void Update() {
 
     }
-
-    public void init() {
-        
-    }
 }

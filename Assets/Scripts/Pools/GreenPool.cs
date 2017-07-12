@@ -20,20 +20,19 @@ public class GreenPool : MonoBehaviour {
     public GreenController newObject(Vector3 pos, Quaternion rot) {
         GreenController t = null;
         if (inactive.Count > 0) {
-            //Debug.Log("inactive.Count() " + inactive.Count + " > 0");
+            Debug.Log("inactive.Count() " + inactive.Count + " > 0");
             t = inactive[0];
             inactive.RemoveAt(0);
             active.Add(t);
         } else if (createdObjects() < maxObjects) {
-            //Debug.Log("createdObjects() " + createdObjects() + " < maxObjects " + maxObjects);
+            Debug.Log("createdObjects() " + createdObjects() + " < maxObjects " + maxObjects);
             t = Instantiate<GreenController>(prefab, pos, rot);
             t.transform.parent = this.transform;
-            active.Remove(t);
+            active.Add(t);
         }
         if(t == null) {
             throw new System.Exception("Error! Spawned more than the max (" + maxObjects + ") number of bullets.");
         }
-        t.init();
         t.gameObject.SetActive(true);
         t.transform.position = pos;
         t.transform.rotation = rot;

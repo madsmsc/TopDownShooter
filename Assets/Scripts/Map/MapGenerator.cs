@@ -16,13 +16,21 @@ public class MapGenerator : MonoBehaviour {
     public GameObject sunlight;
     public bool night;
 
-    private GameObject startPortalGO, endPortalGO;
     private int[,] map;
-    private ObjectSpawner objectSpawner;
+    private bool nextLevel, previousLevel;
     private enum MapType { rockyForest, cave, floating };
-    public bool nextLevel, previousLevel;
+    private GameObject startPortalGO, endPortalGO;
+    private ObjectSpawner objectSpawner;
+    private BulletPool bulletPool;
+    private EnemyPool enemyPool;
+    private GreenPool greenPool;
+    private LootPool lootPool;
 
     void Start() {
+        bulletPool = transform.FindChild("Bullets").GetComponent<BulletPool>();
+        enemyPool = transform.FindChild("Enemies").GetComponent<EnemyPool>();
+        greenPool = transform.FindChild("Greens").GetComponent<GreenPool>();
+        lootPool = transform.FindChild("Loot").GetComponent<LootPool>();
         objectSpawner = GetComponent<ObjectSpawner>();
         generateMap(MapType.rockyForest);
     }
@@ -44,23 +52,26 @@ public class MapGenerator : MonoBehaviour {
     public void changeLevel() {
         if (!nextLevel && !previousLevel)
             return;
-        Debug.Log("new map!");
+        // TODO this doens't work at all... da fudge?
         //TODO  move this to objectSpawner
-        List<GreenController> greenToDelete = new List<GreenController>(objectSpawner.greenPool.active);
+        List<GreenController> greenToDelete = new List<GreenController>(greenPool.active);
         foreach (GreenController green in greenToDelete) {
-            objectSpawner.greenPool.destroyObject(green);
+            Debug.Log("removing the green " + green);
+            greenPool.destroyObject(green);
         }
-        List<EnemyController> enemyToDelete = new List<EnemyController>(objectSpawner.enemyPool.active);
+        List<EnemyController> enemyToDelete = new List<EnemyController>(enemyPool.active);
         foreach (EnemyController enemy in enemyToDelete) {
-            objectSpawner.enemyPool.destroyObject(enemy);
+            Debug.Log("removing the enemy " + enemy);
+            enemyPool.destroyObject(enemy);
         }
-        List<BulletController> bulletToDelete = new List<BulletController>(objectSpawner.bulletPool.active);
+        List<BulletController> bulletToDelete = new List<BulletController>(bulletPool.active);
         foreach (BulletController bullet in bulletToDelete) {
-            objectSpawner.bulletPool.destroyObject(bullet);
+            Debug.Log("removing the bullet " + bullet);
+            bulletPool.destroyObject(bullet);
         }
-        List<Currency> currencyToDelete = new List<Currency>(objectSpawner.lootPool.active);
+        List<Currency> currencyToDelete = new List<Currency>(lootPool.active);
         foreach (Currency currency in currencyToDelete) {
-            objectSpawner.lootPool.destroyObject(currency);
+            lootPool.destroyObject(currency);
         }
         generateMap(MapType.rockyForest);
     }
@@ -94,7 +105,7 @@ public class MapGenerator : MonoBehaviour {
         } if (mapType == MapType.cave) {
             objectSpawner.spawnRocks();
         } if (mapType == MapType.floating) {
-            // what to do here? hmmm...
+            // TODO make the cave flat, and make the meshGenerator make mesh for 0's instead of 1s.
         }
     }
 
@@ -152,14 +163,14 @@ public class MapGenerator : MonoBehaviour {
     private Vector3 makeStartPortal(int offset) {
         Vector3 startPortalPos = new Vector3(-width / 2.0f + offset, 1, -height / 2.0f + offset);
         startPortalGO = Instantiate(portalPrefab, startPortalPos, Quaternion.identity);
-        startPortalGO.transform.parent = objectSpawner.greenPool.transform;
+        startPortalGO.transform.parent = greenPool.transform;
         return startPortalPos;
     }
 
     private Vector3 makeEndPortal(int offset) {
         Vector3 endPortalPos = new Vector3(width / 2.0f - offset, 1, height / 2.0f - offset);
         endPortalGO = Instantiate(portalPrefab, endPortalPos, Quaternion.identity);
-        endPortalGO.transform.parent = objectSpawner.greenPool.transform;
+        endPortalGO.transform.parent = greenPool.transform;
         return endPortalPos;
     }
 
@@ -193,12 +204,14 @@ public class MapGenerator : MonoBehaviour {
     }
 
     private void makeStartEndRooms(List<Room> survivingRooms) {
-        int offset = 2;
+        int offset = 5;
         int width = map.GetLength(0);
         int height = map.GetLength(1);
         Vector3 startPos = makeStartPortal(offset);
         Vector3 endPos = makeEndPortal(offset);
         makeNightDay(startPos, endPos);
+        player.position = new Vector3(startPos.x, player.position.y, startPos.z);
+
         Room startRoom = new Room(new List<Coord>() {
             new Coord(offset, offset), new Coord(offset+1, offset+1),
             new Coord(offset+1, offset), new Coord(offset, offset+1)}, map);

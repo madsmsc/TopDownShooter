@@ -37,6 +37,7 @@ public class EnemyPool : MonoBehaviour {
         t.gameObject.SetActive(true);
         t.transform.position = pos;
         t.transform.rotation = rot;
+        //Debug.Log("EnemyPool newObject returning " + t);
         return t;
     }
 

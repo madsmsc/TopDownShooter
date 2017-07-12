@@ -4,11 +4,6 @@ using System.Collections.Generic;
 using System;
 
 public class ObjectSpawner : MonoBehaviour{
-    public BulletPool bulletPool;
-    public EnemyPool enemyPool;
-    public GreenPool greenPool;
-    public LootPool lootPool;
-
     [Range(0, 100)]
     public int enemyAmount;
     [Range(0, 100)]
@@ -18,15 +13,29 @@ public class ObjectSpawner : MonoBehaviour{
     public string seed;
     public bool useRandomSeed;
     public EnemyController enemy;
-    public List<GreenController> greens;
-    public List<GreenController> rocks;
+    public List<GreenController> greens; // objects to spawn
+    public List<GreenController> rocks;  // objects to spawn
+
     private int[,] map;
     private List<Coord> freeTiles;
     private int width;
     private int height;
     private int freeSpaceRadius = 3;
+    //private BulletPool bulletPool;
+    private EnemyPool enemyPool;
+    private GreenPool greenPool;
+    //private LootPool lootPool;
+
+    void Start() {
+
+    }
 
     public void init(int[,] mapToCopy) {
+        //bulletPool = transform.FindChild("Bullets").GetComponent<BulletPool>();
+        enemyPool = transform.FindChild("Enemies").GetComponent<EnemyPool>();
+        greenPool = transform.FindChild("Greens").GetComponent<GreenPool>();
+        //lootPool = transform.FindChild("Loot").GetComponent<LootPool>();
+
         if (useRandomSeed)
             seed = Time.time.ToString();
         width = mapToCopy.GetLength(0);
@@ -70,10 +79,8 @@ public class ObjectSpawner : MonoBehaviour{
             GameObject newObject = null;
             if(spawnType == SpawnType.green) {
                 newObject = greenPool.newObject(pos, Quaternion.identity).gameObject;
-                newObject.transform.parent = greenPool.transform;
             } else if(spawnType == SpawnType.enemy) {
                 newObject = enemyPool.newObject(pos, Quaternion.identity).gameObject;
-                newObject.transform.parent = enemyPool.transform;
             }
             newObject.isStatic = true;
             toRemove.Add(coord);

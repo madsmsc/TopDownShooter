@@ -5,9 +5,9 @@ using System.Collections.Generic;
 public class MeshGenerator : MonoBehaviour {
 
     private SquareGrid squareGrid;
-    public MeshFilter walls;
-    public MeshFilter cave;
-    public MeshFilter bounds;
+    private MeshFilter walls;
+    private MeshFilter cave;
+    private MeshFilter bounds;
 
     List<Vector3> vertices;
     List<int> triangles;
@@ -17,6 +17,11 @@ public class MeshGenerator : MonoBehaviour {
     HashSet<int> checkedVertices = new HashSet<int>();
 
     public void generateMesh(int[,] map, float squareSize) {
+        Transform terrain = transform.FindChild("Terrain");
+        walls = terrain.FindChild("Walls").GetComponent<MeshFilter>();
+        cave = terrain.FindChild("Cave").GetComponent<MeshFilter>();
+        bounds = terrain.FindChild("Bounds").GetComponent<MeshFilter>();
+
         initFields(map, squareSize);
         fillMesh();
         createWallMesh();
@@ -27,7 +32,8 @@ public class MeshGenerator : MonoBehaviour {
     private void fillMesh() {
         for (int x = 0; x < squareGrid.squares.GetLength(0); x++) {
             for (int y = 0; y < squareGrid.squares.GetLength(1); y++) {
-                triangulateSquare(squareGrid.squares[x, y]);
+                Square square = squareGrid.squares[x, y];
+                triangulateSquare(square);
             }
         }
 
@@ -40,7 +46,7 @@ public class MeshGenerator : MonoBehaviour {
     }
 
     private void createOuterMesh() {
-
+        // TODO make outer mesh
     }
 
     private void initFields(int[,] map, float squareSize) {
@@ -49,7 +55,6 @@ public class MeshGenerator : MonoBehaviour {
         checkedVertices.Clear();
 
         squareGrid = new SquareGrid(map, squareSize);
-
         vertices = new List<Vector3>();
         triangles = new List<int>();
     }
@@ -79,6 +84,7 @@ public class MeshGenerator : MonoBehaviour {
                 wallTriangles.Add(startIndex + 0);
             }
         }
+
         wallMesh.vertices = wallVertices.ToArray();
         wallMesh.triangles = wallTriangles.ToArray();
         walls.mesh = wallMesh;
@@ -293,15 +299,12 @@ public class MeshGenerator : MonoBehaviour {
             vertices[2] = c;
         }
 
-        public int this[int i]
-        {
-            get
-            {
+        public int this[int i] {
+            get {
                 return vertices[i];
             }
         }
-
-
+        
         public bool contains(int vertexIndex) {
             return vertexIndex == vertexIndexA || vertexIndex == vertexIndexB || vertexIndex == vertexIndexC;
         }
@@ -317,10 +320,12 @@ public class MeshGenerator : MonoBehaviour {
             float mapHeight = nodeCountY * squareSize;
 
             ControlNode[,] controlNodes = new ControlNode[nodeCountX, nodeCountY];
-
+            System.Random random = new System.Random();
             for (int x = 0; x < nodeCountX; x++) {
                 for (int y = 0; y < nodeCountY; y++) {
-                    Vector3 pos = new Vector3(-mapWidth / 2 + x * squareSize + squareSize / 2, 0, -mapHeight / 2 + y * squareSize + squareSize / 2);
+                    Vector3 pos = new Vector3(-mapWidth / 2 + x * squareSize + squareSize / 2,
+                                              (float) random.NextDouble()/2.0f, 
+                                              -mapHeight / 2 + y * squareSize + squareSize / 2);
                     controlNodes[x, y] = new ControlNode(pos, map[x, y] == 1, squareSize);
                 }
             }
@@ -328,7 +333,10 @@ public class MeshGenerator : MonoBehaviour {
             squares = new Square[nodeCountX - 1, nodeCountY - 1];
             for (int x = 0; x < nodeCountX - 1; x++) {
                 for (int y = 0; y < nodeCountY - 1; y++) {
-                    squares[x, y] = new Square(controlNodes[x, y + 1], controlNodes[x + 1, y + 1], controlNodes[x + 1, y], controlNodes[x, y]);
+                    squares[x, y] = new Square(controlNodes[x, y + 1], 
+                                               controlNodes[x + 1, y + 1], 
+                                               controlNodes[x + 1, y], 
+                                               controlNodes[x, y]);
                 }
             }
 
